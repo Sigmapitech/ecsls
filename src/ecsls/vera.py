@@ -39,6 +39,25 @@ class Report:
             rule=rule
         )
 
+    @property
+    def message(self) -> str:
+        msg = populate_descriptions()
+
+        return f"{self.rule}:{str(msg.get(self.rule))}"
+
+
+def populate_descriptions():
+    descriptions = {}
+
+    with open("banana-coding-style-checker/vera/code_to_comment") as f:
+        content = f.read()
+
+    for line in content.split('\n'):
+        rule, _, desc = line.partition(':')
+        descriptions[rule] = desc
+
+    return descriptions
+
 
 def parse_vera_output(raw_report: str) -> List[Report]:
     reports = raw_report.split('\n')

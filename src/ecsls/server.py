@@ -1,5 +1,5 @@
 from .version import __version__
-from .vera import ReportType, Report, get_vera_output
+from .vera import get_vera_output
 
 from pygls.server import LanguageServer
 from lsprotocol.types import (
@@ -10,7 +10,6 @@ from lsprotocol.types import (
     Position,
     Range,
 )
-
 
 server = LanguageServer('ecsls', __version__)
 
@@ -26,7 +25,7 @@ def get_diagnolstics(filename: str):
     return [
         Diagnostic(
             range=LineRange(report.line),
-            message=report.rule,
+            message=report.message,
             source="Json Server",
         )
         for report in reports
