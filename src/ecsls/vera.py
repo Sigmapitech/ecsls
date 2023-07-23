@@ -72,7 +72,7 @@ def parse_vera_output(raw_report: str) -> List[Report]:
     return out
 
 
-def get_vera_output(filename: str):
+def get_vera_output(filename: str) -> List[Report]:
     out = subprocess.run(
         (
             "vera++",
