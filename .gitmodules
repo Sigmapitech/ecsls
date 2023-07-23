@@ -1,0 +1,3 @@
+[submodule "epitech"]
+	path = banana-coding-style-checker
+	url = https://github.com/Epitech/banana-coding-style-checker
