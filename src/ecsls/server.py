@@ -1,3 +1,4 @@
+from pygls.workspace import Document
 from .version import __version__
 from .vera import get_vera_output, ReportType
 
@@ -19,13 +20,16 @@ class LineRange(Range):
     def __init__(self, line: int):
         super().__init__(start=Position(line - 1, 1), end=Position(line - 1, 80))
 
+
 SEVERITIES = {
     ReportType.MAJOR: 1,
     ReportType.MINOR: 2,
     ReportType.INFO: 3,
 }
 
-def get_diagnolstics(filename: str):
+
+def get_diagnostics(text_doc: Document):
+    filename = text_doc.uri.partition("://")[2]
     reports = get_vera_output(filename)
     return [
         Diagnostic(
@@ -42,13 +46,10 @@ def get_diagnolstics(filename: str):
 async def did_open(ls: LanguageServer, params: DidOpenTextDocumentParams):
     """Text document did open notification."""
     text_doc = ls.workspace.get_document(params.text_document.uri)
-    name = text_doc.uri.partition("://")[2]
-    ls.publish_diagnostics(text_doc.uri, get_diagnolstics(name))
+    ls.publish_diagnostics(text_doc.uri, get_diagnostics(text_doc))
 
 
 @server.feature(TEXT_DOCUMENT_DID_CHANGE)
 async def did_changement(ls: LanguageServer, params: DidOpenTextDocumentParams):
     text_doc = ls.workspace.get_document(params.text_document.uri)
-    name = text_doc.uri.partition("://")[2]
-    ls.publish_diagnostics(text_doc.uri, get_diagnolstics(name))
-
+    ls.publish_diagnostics(text_doc.uri, get_diagnostics(text_doc))
