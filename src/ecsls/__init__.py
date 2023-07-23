@@ -1,5 +1,10 @@
-from typing import Final
 
-__version__: Final[str] = "0.0.1"
-__all__ = ("__version__",)
+from .server import server
+from .version import __version__, version_info
+
+__all__ = (
+    "version_info",
+    "__version__",
+    "server",
+)
 
