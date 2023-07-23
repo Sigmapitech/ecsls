@@ -11,6 +11,7 @@
           packages = [
             python311
             banana-vera
+            black
           ];
         };
       });
