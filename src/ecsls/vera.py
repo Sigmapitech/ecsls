@@ -12,6 +12,7 @@ REPORT_FORMAT: Final[re.Pattern] = re.compile(
     r"^[^:]+:(?P<line>\d+):\s?(?P<type>MAJOR|MINOR|INFO):(?P<rule>C-\w\d)$"
 )
 
+
 class ReportType(StrEnum):
     MAJOR = "MAJOR"
     MINOR = "MINOR"
@@ -33,17 +34,14 @@ class Report:
 
         line, typ, rule = match.groups()
 
-        return cls(
-            line=int(line),
-            type=ReportType(typ),
-            rule=rule
-        )
+        return cls(line=int(line), type=ReportType(typ), rule=rule)
 
     @property
     def message(self) -> str:
         msg = populate_descriptions()
+        desc = str(msg.get(self.rule))
 
-        return f"{self.rule}:{str(msg.get(self.rule))}"
+        return f"{self.rule}: {desc}"
 
 
 def populate_descriptions():
@@ -52,15 +50,15 @@ def populate_descriptions():
     with open("banana-coding-style-checker/vera/code_to_comment") as f:
         content = f.read()
 
-    for line in content.split('\n'):
-        rule, _, desc = line.partition(':')
+    for line in content.split("\n"):
+        rule, _, desc = line.partition(":")
         descriptions[rule] = desc
 
     return descriptions
 
 
 def parse_vera_output(raw_report: str) -> List[Report]:
-    reports = raw_report.split('\n')
+    reports = raw_report.split("\n")
 
     out = []
     for reported_line in reports:
@@ -84,11 +82,11 @@ def get_vera_output(filename: str):
             "banana-coding-style-checker/vera",
             filename,
         ),
-        capture_output=True
+        capture_output=True,
     ).stdout
 
     return parse_vera_output(out.decode())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print(get_vera_output("caca.c"))
