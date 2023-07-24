@@ -1,4 +1,6 @@
+import tempfile
 from pygls.workspace import Document
+
 from .version import __version__
 from .vera import get_vera_output, ReportType
 
@@ -22,21 +24,27 @@ class LineRange(Range):
 
 
 SEVERITIES = {
-    ReportType.MAJOR: 1,
-    ReportType.MINOR: 2,
-    ReportType.INFO: 3,
+    ReportType.MAJOR: DiagnosticSeverity.Warning,
+    ReportType.MINOR: DiagnosticSeverity.Information,
+    ReportType.INFO: DiagnosticSeverity.Hint
 }
 
 
 def get_diagnostics(text_doc: Document):
-    filename = text_doc.uri.partition("://")[2]
-    reports = get_vera_output(filename)
+    content = text_doc.source
+ 
+    with tempfile.NamedTemporaryFile(suffix=".c") as tf:
+        tf.write(content.encode())
+        tf.flush()
+
+        reports = get_vera_output(tf.name)
+
     return [
         Diagnostic(
             range=LineRange(report.line),
             message=report.message,
             source="Json Server",
-            severity=DiagnosticSeverity(SEVERITIES[report.type] + 1),
+            severity=SEVERITIES[report.type],
         )
         for report in reports
     ]
