@@ -2,15 +2,17 @@ import tempfile
 from pygls.workspace import Document
 
 from .version import __version__
-from .vera import get_vera_output, ReportType
+from .vera import get_vera_output, ReportType, CONFIG
 
 from pygls.server import LanguageServer
 from lsprotocol.types import (
     TEXT_DOCUMENT_DID_CHANGE,
     TEXT_DOCUMENT_DID_OPEN,
+    INITIALIZE,
     Diagnostic,
     DiagnosticSeverity,
     DidOpenTextDocumentParams,
+    InitializeParams,
     Position,
     Range,
 )
@@ -49,6 +51,10 @@ def get_diagnostics(text_doc: Document):
         )
         for report in reports
     ]
+
+@server.feature(INITIALIZE)
+async def initialize(params: InitializeParams):
+    CONFIG.set_opts(params.initialization_options)
 
 
 @server.feature(TEXT_DOCUMENT_DID_OPEN)

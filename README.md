@@ -18,11 +18,19 @@ git submodules update --init --recursive
 ```bash
 pip install .
 ```
+> **Note**
+> If you are using virtual environments, don't forget to add the correct path
+> for the command in your LSP config
 
 
 ## Neovim
 
 To activate the LSP using lspconfig, use this in your config
+
+> **Note**
+> If you want to use it globally, or if you wish to change the vera rules
+> directory, change `path` in init\_options.
+
 ```lua
 local lspconfig = require('lspconfig')
 local configs = require('lspconfig.configs')
@@ -37,7 +45,7 @@ if not configs.ecsls then
       name = 'ecsls',
       filetypes = { 'c', 'cpp', 'make' },
       init_options = {
-        command = { 'ecsls_run' },
+        path = './',
       },
     },
   }

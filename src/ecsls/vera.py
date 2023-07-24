@@ -7,11 +7,26 @@ import re
 import subprocess
 from typing import Final, List, Optional
 
+from lsprotocol.types import LSPAny
 
-REPORT_FORMAT: Final[re.Pattern] = re.compile(
-    r"^[^:]+:(?P<line>\d+):\s?(?P<type>MAJOR|MINOR|INFO):(?P<rule>C-\w\d)$"
-)
-ROOT = "."
+
+class Config:
+    _instance = None
+
+    @classmethod
+    def instance(cls):
+        if cls._instance is None:
+            cls._instance = cls()
+
+        return cls._instance
+
+    def __init__(self):
+        self.path = "./"
+
+    def set_opts(self, opts: LSPAny):
+        if opts is None:
+            return
+        self.path = opts.get("path", "./")
 
 
 class ReportType(StrEnum):
@@ -45,10 +60,16 @@ class Report:
         return f"{self.rule}: {desc}"
 
 
+CONFIG = Config.instance()
+REPORT_FORMAT: Final[re.Pattern] = re.compile(
+    r"^[^:]+:(?P<line>\d+):\s?(?P<type>MAJOR|MINOR|INFO):(?P<rule>C-\w\d)$"
+)
+
+
 def populate_descriptions():
     descriptions = {}
 
-    with open(f"{ROOT}/banana-coding-style-checker/vera/code_to_comment") as f:
+    with open(f"{CONFIG.path}/banana-coding-style-checker/vera/code_to_comment") as f:
         content = f.read()
 
     for line in content.split("\n"):
@@ -80,7 +101,7 @@ def get_vera_output(filename: str) -> List[Report]:
             "--profile",
             "epitech",
             "--root",
-            f"{ROOT}banana-coding-style-checker/vera",
+            f"{CONFIG.path}/banana-coding-style-checker/vera",
             filename,
         ),
         capture_output=True,
