@@ -33,7 +33,9 @@ if not configs.ecsls then
     default_config = {
       root_dir = lspconfig.util.root_pattern('.git', 'Makefile'),
       cmd = { 'ecsls_run' },
-      filetypes = { 'c' },
+      autostart = true,
+      name = 'ecsls',
+      filetypes = { 'c', 'cpp', 'make' },
       init_options = {
         command = { 'ecsls_run' },
       },

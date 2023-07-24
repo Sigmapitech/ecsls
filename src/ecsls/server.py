@@ -32,8 +32,9 @@ SEVERITIES = {
 
 def get_diagnostics(text_doc: Document):
     content = text_doc.source
+    filename = ".mk" if text_doc.filename == "Makefile" else text_doc.filename 
  
-    with tempfile.NamedTemporaryFile(suffix=".c") as tf:
+    with tempfile.NamedTemporaryFile(suffix=filename) as tf:
         tf.write(content.encode())
         tf.flush()
 
