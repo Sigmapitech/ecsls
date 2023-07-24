@@ -11,6 +11,7 @@ from typing import Final, List, Optional
 REPORT_FORMAT: Final[re.Pattern] = re.compile(
     r"^[^:]+:(?P<line>\d+):\s?(?P<type>MAJOR|MINOR|INFO):(?P<rule>C-\w\d)$"
 )
+ROOT = "."
 
 
 class ReportType(StrEnum):
@@ -47,7 +48,7 @@ class Report:
 def populate_descriptions():
     descriptions = {}
 
-    with open("banana-coding-style-checker/vera/code_to_comment") as f:
+    with open(f"{ROOT}/banana-coding-style-checker/vera/code_to_comment") as f:
         content = f.read()
 
     for line in content.split("\n"):
@@ -79,7 +80,7 @@ def get_vera_output(filename: str) -> List[Report]:
             "--profile",
             "epitech",
             "--root",
-            "banana-coding-style-checker/vera",
+            f"{ROOT}banana-coding-style-checker/vera",
             filename,
         ),
         capture_output=True,
