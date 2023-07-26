@@ -66,10 +66,6 @@ def get_diagnostics(text_doc: Document):
 
         reports = get_vera_output(tf.name)
 
-    out_reports = _merge_cf4s(reports)
-    with open("kek", "w+") as f:
-        f.write(repr(out_reports))
-
     return [
         Diagnostic(
             range=LineRange(report.line, report.last_line),
@@ -77,7 +73,7 @@ def get_diagnostics(text_doc: Document):
             source="Json Server",
             severity=SEVERITIES[report.type],
         )
-        for report in out_reports
+        for report in _merge_cf4s(reports)
     ]
 
 @server.feature(INITIALIZE)
