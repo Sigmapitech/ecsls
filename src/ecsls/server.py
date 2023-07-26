@@ -1,10 +1,12 @@
 import tempfile
-from pygls.workspace import Document
+from typing import Dict, List
 
 from .version import __version__
-from .vera import get_vera_output, ReportType, CONFIG
+from .vera import get_vera_output, Report, ReportType, CONFIG
 
 from pygls.server import LanguageServer
+from pygls.workspace import Document
+
 from lsprotocol.types import (
     TEXT_DOCUMENT_DID_CHANGE,
     TEXT_DOCUMENT_DID_OPEN,
@@ -21,8 +23,11 @@ server = LanguageServer("ecsls", __version__)
 
 
 class LineRange(Range):
-    def __init__(self, line: int):
-        super().__init__(start=Position(line - 1, 1), end=Position(line - 1, 80))
+    def __init__(self, line: int, last_line: int = 0):
+        super().__init__(
+            start=Position(line - 1, 1),
+            end=Position(last_line or (line - 1), 80)
+        )
 
 
 SEVERITIES = {
@@ -30,6 +35,25 @@ SEVERITIES = {
     ReportType.MINOR: DiagnosticSeverity.Information,
     ReportType.INFO: DiagnosticSeverity.Hint
 }
+
+def _merge_cf4s(reports: List[Report]) -> List[Report]:
+    out_reports = []
+    cf4s: Dict[int, Report] = {}
+
+    for report in sorted(reports, key=lambda r: r.line):
+        if report.rule != 'C-F4':
+            out_reports.append(report)
+            continue
+
+        for k in cf4s.values():
+            if k.is_mergeable(report.line):
+               k.merge(report)
+               break
+        else:
+            cf4s[report.line] = report
+
+    out_reports.extend(cf4s.values())
+    return out_reports
 
 
 def get_diagnostics(text_doc: Document):
@@ -42,14 +66,18 @@ def get_diagnostics(text_doc: Document):
 
         reports = get_vera_output(tf.name)
 
+    out_reports = _merge_cf4s(reports)
+    with open("kek", "w+") as f:
+        f.write(repr(out_reports))
+
     return [
         Diagnostic(
-            range=LineRange(report.line),
+            range=LineRange(report.line, report.last_line),
             message=report.message,
             source="Json Server",
             severity=SEVERITIES[report.type],
         )
-        for report in reports
+        for report in out_reports
     ]
 
 @server.feature(INITIALIZE)

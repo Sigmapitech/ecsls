@@ -41,6 +41,20 @@ class Report:
     type: ReportType
     rule: str
 
+    last_line: int = 0
+    count: int = 1
+
+    def __post_init__(self):
+        self.last_line = self.line
+
+    def is_mergeable(self, line):
+        return line in range(self.line - 1, self.last_line + 2)
+
+    def merge(self, report: Report):
+        self.line = min(self.line, report.line)
+        self.last_line = max(self.last_line, report.line)
+        self.count += report.count
+
     @classmethod
     def from_string(cls, line: str) -> Optional[Report]:
         match = re.match(REPORT_FORMAT, line)
@@ -57,8 +71,8 @@ class Report:
         msg = populate_descriptions()
         desc = str(msg.get(self.rule))
 
-        return f"{self.rule}: {desc}"
-
+        times = f" x{self.count}" * (self.count > 1)
+        return f"{self.rule}: {desc}" + times
 
 CONFIG = Config.instance()
 REPORT_FORMAT: Final[re.Pattern] = re.compile(
