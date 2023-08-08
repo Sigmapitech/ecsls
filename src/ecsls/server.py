@@ -77,8 +77,8 @@ def get_diagnostics(text_doc: Document):
     ]
 
 @server.feature(INITIALIZE)
-async def initialize(params: InitializeParams):
-    CONFIG.set_opts(params.initialization_options)
+async def initialize(ls: LanguageServer, params: InitializeParams):
+    CONFIG.set_opts(params.initialization_options, ls)
 
 
 @server.feature(TEXT_DOCUMENT_DID_OPEN)

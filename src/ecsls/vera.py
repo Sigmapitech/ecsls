@@ -3,11 +3,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import StrEnum
 
+import os
 import re
 import subprocess
 from typing import Final, List, Optional
 
 from lsprotocol.types import LSPAny
+from pygls.server import LanguageServer
 
 
 class Config:
@@ -21,12 +23,16 @@ class Config:
         return cls._instance
 
     def __init__(self):
-        self.path = "./"
+        self.path = "./banana-coding-style-checker"
 
-    def set_opts(self, opts: LSPAny):
+    def set_opts(self, opts: LSPAny, ls: LanguageServer):
         if opts is None:
             return
-        self.path = opts.get("path", "./")
+
+        self.path = opts.get("path", self.path)
+        ls.show_message(f"=> PATH = [{self.path}]")
+        if not os.path.exists(self.path):
+            raise ValueError
 
 
 class ReportType(StrEnum):
@@ -83,7 +89,7 @@ REPORT_FORMAT: Final[re.Pattern] = re.compile(
 def populate_descriptions():
     descriptions = {}
 
-    with open(f"{CONFIG.path}/banana-coding-style-checker/vera/code_to_comment") as f:
+    with open(f"{CONFIG.path}/vera/code_to_comment") as f:
         content = f.read()
 
     for line in content.split("\n"):
@@ -115,7 +121,7 @@ def get_vera_output(filename: str) -> List[Report]:
             "--profile",
             "epitech",
             "--root",
-            f"{CONFIG.path}/banana-coding-style-checker/vera",
+            f"{CONFIG.path}/vera",
             filename,
         ),
         capture_output=True,

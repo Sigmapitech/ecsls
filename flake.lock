@@ -18,7 +18,24 @@
     "root": {
       "inputs": {
         "nixpkgs": "nixpkgs",
+        "ruleset": "ruleset",
         "utils": "utils"
+      }
+    },
+    "ruleset": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1690358569,
+        "narHash": "sha256-OP1vtLQbTUGhoDQ3FEQip7lO2fclOtJkFKe+vMQRMXU=",
+        "ref": "refs/heads/main",
+        "rev": "145b868c951383c8ffc269514b7973bed2471f72",
+        "revCount": 25,
+        "type": "git",
+        "url": "ssh://git@github.com/Epitech/banana-coding-style-checker.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://git@github.com/Epitech/banana-coding-style-checker.git"
       }
     },
     "systems": {
