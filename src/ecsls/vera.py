@@ -52,17 +52,30 @@ class Report:
             return None
 
         line, typ, rule = match.groups()
-
         return cls(line=int(line), type=ReportType(typ), rule=rule)
 
     @property
     def message(self) -> str:
         msg = populate_descriptions()
-        desc = str(msg.get(self.rule))
+
+        conf = Config.instance()
+        text = conf.get("text", dict, {})
+
+        desc_members = []
+
+        if text.get("level", False):
+            desc_members.append(str(self.type))
+        if text.get("code", True):
+            desc_members.append(self.rule)
+        if text.get("description", True):
+            desc_members.append(str(msg.get(self.rule)))
+
+        desc = ':'.join(desc_members)
+        if conf.get("merge", str, "multiline") != "multiplier":
+            return desc
 
         times = f" x{self.count}" * (self.count > 1)
-        return f"{self.rule}: {desc}" + times
-
+        return desc + times
 
 def populate_descriptions():
     descriptions = {}

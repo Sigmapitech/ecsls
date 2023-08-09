@@ -24,10 +24,15 @@ server = LanguageServer("ecsls", __version__)
 
 
 class LineRange(Range):
+
     def __init__(self, line: int, last_line: int = 0):
+        conf = Config.instance()
+        is_multiline = conf.get("merge", str, "multiline") != "multiplier"
+        end = last_line if last_line and is_multiline else (line - 1)
+
         super().__init__(
             start=Position(line - 1, 1),
-            end=Position(last_line or (line - 1), 80)
+            end=Position(end, 80)
         )
 
 
@@ -37,23 +42,24 @@ SEVERITIES = {
     ReportType.INFO: DiagnosticSeverity.Hint
 }
 
-def _merge_cf4s(reports: List[Report]) -> List[Report]:
+def _merge_reports(reports: List[Report]) -> List[Report]:
     out_reports = []
-    cf4s: Dict[int, Report] = {}
+   
+    for rule in set(report.rule for report in reports):
+        m = {}
 
-    for report in sorted(reports, key=lambda r: r.line):
-        if report.rule != 'C-F4':
-            out_reports.append(report)
-            continue
+        for report in sorted(reports, key=lambda r: r.line):
+            if report.rule != rule:
+                continue
 
-        for k in cf4s.values():
-            if k.is_mergeable(report.line):
-               k.merge(report)
-               break
-        else:
-            cf4s[report.line] = report
+            for k in m.values():
+                if k.is_mergeable(report.line):
+                    k.merge(report)
+                    break
+            else:
+                m[report.line] = report
 
-    out_reports.extend(cf4s.values())
+        out_reports.extend(m.values())
     return out_reports
 
 
@@ -72,13 +78,19 @@ def get_diagnostics(text_doc: Document):
 
     return [
         Diagnostic(
-            range=LineRange(report.line, report.last_line),
+            range=LineRange(
+                report.line,
+                report.last_line
+            ),
             message=report.message,
             source="Json Server",
-            severity=SEVERITIES[report.type],
-        )
-        for report in _merge_cf4s(reports)
-        if report.rule not in conf.get("ignore", [])
+            severity=(
+                SEVERITIES[report.type]
+                if conf.get("severity_levels", bool, True)
+                else DiagnosticSeverity.Hint
+            )
+        ) for report in _merge_reports(reports)
+        if report.rule not in conf.get("ignore", list, [])
     ]
 
 @server.feature(INITIALIZE)

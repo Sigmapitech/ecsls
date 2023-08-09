@@ -32,7 +32,16 @@ class Config:
 
     def _read_conf(self, confpath):
         with open(confpath, "rb") as f:
-            self.__conf = tomli.load(f)
+            self.__conf = tomli.load(f).get("reports", {
+                "ignore": [],
+                "severity_levels": True,
+                "merge": "multiline",
+                "text": {
+                    "level": False,
+                    "code": True,
+                    "description": True
+                }
+            })
 
     def read(self, filepath):
         path = Path(filepath)
@@ -43,5 +52,13 @@ class Config:
 
             path = path.parent
 
-    def get(self, key, default):
-        return self.__conf.get(key, default)
+    def get(self, key, typ, default):
+        v = self.__conf.get(key)
+
+        if v is None:
+            return default
+
+        if not isinstance(v, typ):
+            return default
+
+        return v
