@@ -1,0 +1,11 @@
+[reports]
+ignore = [] # Eg: [ "C-C1", "C-G1", "C-F4" ]
+severity_levels = true
+merge = "multiline" # multiline, multiplier
+
+[reports.text]
+# [level][code][description]
+# eg: MINOR: C-L4: misplaced curly bracket
+code = true
+description = true
+level = false
