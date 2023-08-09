@@ -1,8 +1,9 @@
 import tempfile
 from typing import Dict, List
 
+from .config import Config
 from .version import __version__
-from .vera import get_vera_output, Report, ReportType, CONFIG
+from .vera import get_vera_output, Report, ReportType
 
 from pygls.server import LanguageServer
 from pygls.workspace import Document
@@ -59,7 +60,10 @@ def _merge_cf4s(reports: List[Report]) -> List[Report]:
 def get_diagnostics(text_doc: Document):
     content = text_doc.source
     filename = ".mk" if text_doc.filename == "Makefile" else text_doc.filename 
- 
+    
+    conf = Config.instance()
+    conf.read(text_doc.uri)
+
     with tempfile.NamedTemporaryFile(suffix=filename) as tf:
         tf.write(content.encode())
         tf.flush()
@@ -74,11 +78,12 @@ def get_diagnostics(text_doc: Document):
             severity=SEVERITIES[report.type],
         )
         for report in _merge_cf4s(reports)
+        if report.rule not in conf.get("ignore", [])
     ]
 
 @server.feature(INITIALIZE)
 async def initialize(ls: LanguageServer, params: InitializeParams):
-    CONFIG.set_opts(params.initialization_options, ls)
+    Config.instance().set_opts(params.initialization_options, ls)
 
 
 @server.feature(TEXT_DOCUMENT_DID_OPEN)

@@ -1,44 +1,27 @@
 from __future__ import annotations
 
+import re
+import subprocess
+
 from dataclasses import dataclass
 from enum import StrEnum
 
-import os
 import re
 import subprocess
 from typing import Final, List, Optional
 
-from lsprotocol.types import LSPAny
-from pygls.server import LanguageServer
+from .config import Config
 
 
-class Config:
-    _instance = None
-
-    @classmethod
-    def instance(cls):
-        if cls._instance is None:
-            cls._instance = cls()
-
-        return cls._instance
-
-    def __init__(self):
-        self.path = "./banana-coding-style-checker"
-
-    def set_opts(self, opts: LSPAny, ls: LanguageServer):
-        if opts is None:
-            return
-
-        self.path = opts.get("path", self.path)
-        ls.show_message(f"=> PATH = [{self.path}]")
-        if not os.path.exists(self.path):
-            raise ValueError
-
+REPORT_FORMAT: Final[re.Pattern] = re.compile(
+    r"^[^:]+:(?P<line>\d+):\s?(?P<type>MAJOR|MINOR|INFO):(?P<rule>C-\w\d)$"
+)
 
 class ReportType(StrEnum):
     MAJOR = "MAJOR"
     MINOR = "MINOR"
     INFO = "INFO"
+
 
 
 @dataclass
@@ -80,16 +63,12 @@ class Report:
         times = f" x{self.count}" * (self.count > 1)
         return f"{self.rule}: {desc}" + times
 
-CONFIG = Config.instance()
-REPORT_FORMAT: Final[re.Pattern] = re.compile(
-    r"^[^:]+:(?P<line>\d+):\s?(?P<type>MAJOR|MINOR|INFO):(?P<rule>C-\w\d)$"
-)
-
 
 def populate_descriptions():
     descriptions = {}
 
-    with open(f"{CONFIG.path}/vera/code_to_comment") as f:
+    conf = Config.instance()
+    with open(f"{conf.path}/vera/code_to_comment") as f:
         content = f.read()
 
     for line in content.split("\n"):
@@ -115,13 +94,14 @@ def parse_vera_output(raw_report: str) -> List[Report]:
 
 
 def get_vera_output(filename: str) -> List[Report]:
+    conf = Config.instance()
     out = subprocess.run(
         (
             "vera++",
             "--profile",
             "epitech",
             "--root",
-            f"{CONFIG.path}/vera",
+            f"{conf.path}/vera",
             filename,
         ),
         capture_output=True,

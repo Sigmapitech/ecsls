@@ -33,13 +33,13 @@
           version = "0.0.1";
           src = ./.;
 
-          propagatedBuildInputs = [ pypkgs.pygls ];
+          propagatedBuildInputs = [ pypkgs.pygls pypkgs.tomli ];
           nativeBuildInputs = with pkgs; [
             makeWrapper
           ];
 
           postPatch = ''
-            substituteInPlace src/ecsls/vera.py --replace   \
+            substituteInPlace src/ecsls/config.py --replace   \
               'self.path = "./banana-coding-style-checker"' \
               'self.path = "${ruleset}"'
           '';
