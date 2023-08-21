@@ -13,15 +13,18 @@ from typing import Final, List, Optional
 from .config import Config
 
 
-REPORT_FORMAT: Final[re.Pattern] = re.compile(
-    r"^[^:]+:(?P<line>\d+):\s?(?P<type>MAJOR|MINOR|INFO):(?P<rule>C-\w\d)$"
-)
-
 class ReportType(StrEnum):
+    FATAL = "FATAL"
     MAJOR = "MAJOR"
     MINOR = "MINOR"
     INFO = "INFO"
 
+
+_levels = '|'.join(m for m in ReportType.__members__)
+
+REPORT_FORMAT: Final[re.Pattern] = re.compile(
+    rf"^[^:]+:(?P<line>\d+):\s?(?P<type>{_levels}):(?P<rule>C-\w\d)$"
+)
 
 
 @dataclass

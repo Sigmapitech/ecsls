@@ -37,6 +37,7 @@ class LineRange(Range):
 
 
 SEVERITIES = {
+    ReportType.FATAL: DiagnosticSeverity.Error,
     ReportType.MAJOR: DiagnosticSeverity.Warning,
     ReportType.MINOR: DiagnosticSeverity.Information,
     ReportType.INFO: DiagnosticSeverity.Hint
