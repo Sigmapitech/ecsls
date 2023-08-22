@@ -31,17 +31,23 @@ class Config:
             raise ValueError
 
     def _read_conf(self, confpath):
+        default_conf = {
+            "ignore": [],
+            "severity_levels": True,
+            "merge": "multiline",
+            "text": {
+                "level": False,
+                "code": True,
+                "description": True
+            }
+        }
+
+        if not os.path.exists(confpath):
+            self.__conf = default_conf
+            return
+
         with open(confpath, "rb") as f:
-            self.__conf = tomli.load(f).get("reports", {
-                "ignore": [],
-                "severity_levels": True,
-                "merge": "multiline",
-                "text": {
-                    "level": False,
-                    "code": True,
-                    "description": True
-                }
-            })
+            self.__conf = tomli.load(f).get("reports", default_conf)
 
     def read(self, filepath):
         path = Path(filepath)
