@@ -23,7 +23,7 @@ class ReportType(StrEnum):
 _levels = '|'.join(m for m in ReportType.__members__)
 
 REPORT_FORMAT: Final[re.Pattern] = re.compile(
-    rf"^[^:]+:(?P<line>\d+):\s?(?P<type>{_levels}):(?P<rule>C-\w\d)$"
+    rf"^[^:]+:(?P<line>\d+):\s?(?P<type>{_levels}):(?P<rule>C-\w\d+)$"
 )
 
 
