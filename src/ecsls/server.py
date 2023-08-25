@@ -43,9 +43,13 @@ SEVERITIES = {
     ReportType.INFO: DiagnosticSeverity.Hint
 }
 
-def _merge_reports(reports: List[Report]) -> List[Report]:
+def merge_reports(reports: List[Report]) -> List[Report]:
     out_reports = []
-   
+
+    conf = Config.instance()
+    if conf.get("merge", str, "multiline") == "multiline":
+        return reports
+
     for rule in set(report.rule for report in reports):
         m = {}
 
