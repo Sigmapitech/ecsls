@@ -94,7 +94,7 @@ def get_diagnostics(text_doc: Document):
                 if conf.get("severity_levels", bool, True)
                 else DiagnosticSeverity.Hint
             )
-        ) for report in _merge_reports(reports)
+        ) for report in merge_reports(reports)
         if report.rule not in conf.get("ignore", list, [])
     ]
 

@@ -111,6 +111,9 @@ def parse_vera_output(raw_report: str) -> List[Report]:
 
 def get_vera_output(filename: str) -> List[Report]:
     conf = Config.instance()
+    if not filename:
+        return []
+
     out = subprocess.run(
         (
             "vera++",
