@@ -3,18 +3,13 @@
 
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-unstable";
-
-    ruleset = {
-      url = "git+ssh://git@github.com/Epitech/banana-coding-style-checker.git";
-      flake = false;
-    };
-
     utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, ruleset, utils }:
+  outputs = { self, nixpkgs, utils }:
     utils.lib.eachDefaultSystem (system: let
       pkgs = nixpkgs.legacyPackages.${system};
+      ruleset = "banana-coding-style-checker";
 
     in {
       devShells.default = pkgs.mkShell {
