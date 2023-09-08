@@ -19,7 +19,10 @@ class Config:
 
     def __init__(self):
         self.__conf = {}
-        self.path = "./banana-coding-style-checker"
+
+        user_home = os.environ.get("$HOME", "~")
+        user_conf = os.environ.get("$XDG_CONFIG_HOME", f"{user_home}/.config")
+        self.path = os.path.expanduser(f"{user_conf}/ecsls")
 
     def set_opts(self, opts: LSPAny, ls: LanguageServer):
         if opts is None:

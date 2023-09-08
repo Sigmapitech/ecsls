@@ -9,7 +9,6 @@
   outputs = { self, nixpkgs, utils }:
     utils.lib.eachDefaultSystem (system: let
       pkgs = nixpkgs.legacyPackages.${system};
-      ruleset = "banana-coding-style-checker";
 
     in {
       devShells.default = pkgs.mkShell {
@@ -32,12 +31,6 @@
           nativeBuildInputs = with pkgs; [
             makeWrapper
           ];
-
-          postPatch = ''
-            substituteInPlace src/ecsls/config.py --replace   \
-              'self.path = "./banana-coding-style-checker"' \
-              'self.path = "${ruleset}"'
-          '';
 
           postFixup = ''
             wrapProgram $out/bin/ecsls_run \
