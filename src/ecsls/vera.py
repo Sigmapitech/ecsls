@@ -6,11 +6,13 @@ import subprocess
 from dataclasses import dataclass
 from enum import Enum
 
+import os
 import re
 import subprocess
 from typing import Final, List, Optional
 
 from .config import Config
+from pygls.server import LanguageServer
 
 
 class ReportType(str, Enum):
@@ -109,7 +111,7 @@ def parse_vera_output(raw_report: str) -> List[Report]:
     return out
 
 
-def get_vera_output(filename: str) -> List[Report]:
+def get_vera_output(ls: LanguageServer, filename: str) -> List[Report]:
     conf = Config.instance()
     if not filename:
         return []
@@ -124,8 +126,17 @@ def get_vera_output(filename: str) -> List[Report]:
             filename,
         ),
         capture_output=True,
-    ).stdout
+    )
 
+    with open(os.path.expanduser("~/.ecsls"), 'w+') as f:
+        f.write(out.stderr.decode())
+        f.write("-" * 80)
+        f.write(out.stderr.decode())
+
+    if out.stderr:
+        ls.show_message(out.stderr.decode())
+
+    out = out.stdout
     return parse_vera_output(out.decode())
 
 

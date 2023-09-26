@@ -68,7 +68,7 @@ def merge_reports(reports: List[Report]) -> List[Report]:
     return out_reports
 
 
-def get_diagnostics(text_doc: Document):
+def get_diagnostics(ls: LanguageServer, text_doc: Document):
     content = text_doc.source
     filename = ".mk" if text_doc.filename == "Makefile" else text_doc.filename 
     
@@ -79,7 +79,7 @@ def get_diagnostics(text_doc: Document):
         tf.write(content.encode())
         tf.flush()
 
-        reports = get_vera_output(tf.name)
+        reports = get_vera_output(ls, tf.name)
 
     return [
         Diagnostic(
@@ -107,10 +107,10 @@ async def initialize(ls: LanguageServer, params: InitializeParams):
 async def did_open(ls: LanguageServer, params: DidOpenTextDocumentParams):
     """Text document did open notification."""
     text_doc = ls.workspace.get_document(params.text_document.uri)
-    ls.publish_diagnostics(text_doc.uri, get_diagnostics(text_doc))
+    ls.publish_diagnostics(text_doc.uri, get_diagnostics(ls, text_doc))
 
 
 @server.feature(TEXT_DOCUMENT_DID_CHANGE)
 async def did_changement(ls: LanguageServer, params: DidOpenTextDocumentParams):
     text_doc = ls.workspace.get_document(params.text_document.uri)
-    ls.publish_diagnostics(text_doc.uri, get_diagnostics(text_doc))
+    ls.publish_diagnostics(text_doc.uri, get_diagnostics(ls, text_doc))
