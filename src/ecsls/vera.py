@@ -4,7 +4,7 @@ import re
 import subprocess
 
 from dataclasses import dataclass
-from enum import StrEnum
+from enum import Enum
 
 import re
 import subprocess
@@ -13,7 +13,7 @@ from typing import Final, List, Optional
 from .config import Config
 
 
-class ReportType(StrEnum):
+class ReportType(str, Enum):
     FATAL = "FATAL"
     MAJOR = "MAJOR"
     MINOR = "MINOR"
