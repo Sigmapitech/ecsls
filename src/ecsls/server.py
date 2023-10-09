@@ -70,10 +70,10 @@ def merge_reports(reports: List[Report]) -> List[Report]:
 
 def get_diagnostics(ls: LanguageServer, text_doc: Document):
     content = text_doc.source
-    filename = ".mk" if text_doc.filename == "Makefile" else text_doc.filename 
-    
+    filename = ".mk" if text_doc.filename == "Makefile" else text_doc.filename
+
     conf = Config.instance()
-    conf.read(text_doc.uri)
+    conf.read(ls, text_doc.uri)
 
     with tempfile.NamedTemporaryFile(suffix=filename) as tf:
         tf.write(content.encode())

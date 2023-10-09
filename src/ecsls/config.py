@@ -52,11 +52,13 @@ class Config:
         with open(confpath, "rb") as f:
             self.__conf = tomli.load(f).get("reports", default_conf)
 
-    def read(self, filepath):
-        path = Path(filepath)
+    def read(self, ls: LanguageServer, filepath):
+        path = Path(filepath.split(':')[-1])
 
         while path != '/':
-            if (path / "ecsls.toml").exists():
+            abs_path = (path / 'ecsls.toml').absolute()
+            if abs_path.exists():
+                ls.show_message(f"load conf @ {abs_path}")
                 return self._read_conf(path / "ecsls.toml")
 
             path = path.parent
