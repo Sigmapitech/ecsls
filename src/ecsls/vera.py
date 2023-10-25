@@ -126,12 +126,8 @@ def get_vera_output(ls: LanguageServer, filename: str) -> List[Report]:
             filename,
         ),
         capture_output=True,
+        timeout=5
     )
-
-    with open(os.path.expanduser("~/.ecsls"), 'w+') as f:
-        f.write(out.stderr.decode())
-        f.write("-" * 80)
-        f.write(out.stderr.decode())
 
     if out.stderr:
         ls.show_message(out.stderr.decode())
@@ -139,6 +135,3 @@ def get_vera_output(ls: LanguageServer, filename: str) -> List[Report]:
     out = out.stdout
     return parse_vera_output(out.decode())
 
-
-if __name__ == "__main__":
-    print(get_vera_output("caca.c"))
