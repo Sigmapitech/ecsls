@@ -6,7 +6,6 @@ import subprocess
 from dataclasses import dataclass
 from enum import Enum
 
-import os
 import re
 import subprocess
 from typing import Final, List, Optional
@@ -113,9 +112,9 @@ def parse_vera_output(raw_report: str) -> List[Report]:
 
 def get_vera_output(ls: LanguageServer, filename: str) -> List[Report]:
     conf = Config.instance()
+
     if not filename:
         return []
-
     out = subprocess.run(
         (
             "vera++",

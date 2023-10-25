@@ -33,7 +33,7 @@ class Config:
         if not os.path.exists(self.path):
             raise ValueError
 
-    def _read_conf(self, confpath):
+    def _read_conf(self, confpath) -> bool:
         default_conf = {
             "ignore": [],
             "severity_levels": True,
@@ -47,21 +47,25 @@ class Config:
 
         if not os.path.exists(confpath):
             self.__conf = default_conf
-            return
+            return False
 
         with open(confpath, "rb") as f:
             self.__conf = tomli.load(f).get("reports", default_conf)
+        return True
 
-    def read(self, ls: LanguageServer, filepath):
+    def read(self, ls: LanguageServer, filepath) -> bool:
         path = Path(filepath.split(':')[-1])
+        count_slash = str(path.absolute).count('/')
 
-        while path != '/':
+        for _ in range(count_slash):
             abs_path = (path / 'ecsls.toml').absolute()
+
             if abs_path.exists():
                 ls.show_message(f"load conf @ {abs_path}")
                 return self._read_conf(path / "ecsls.toml")
 
             path = path.parent
+        return False
 
     def get(self, key, typ, default):
         v = self.__conf.get(key)

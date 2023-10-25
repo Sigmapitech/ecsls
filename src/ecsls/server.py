@@ -73,7 +73,8 @@ def get_diagnostics(ls: LanguageServer, text_doc: Document):
     filename = ".mk" if text_doc.filename == "Makefile" else text_doc.filename
 
     conf = Config.instance()
-    conf.read(ls, text_doc.uri)
+    if not conf.read(ls, text_doc.uri):
+        return []
 
     with tempfile.NamedTemporaryFile(suffix=filename) as tf:
         tf.write(content.encode())
