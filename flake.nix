@@ -4,13 +4,13 @@
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-unstable";
     utils.url = "github:numtide/flake-utils";
+    vera-clang.url = "github:Sigmapitech/vera-clang";
   };
 
-  outputs = { self, nixpkgs, utils }:
+  outputs = { nixpkgs, utils, vera-clang, ... }:
     utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-
       in
       {
         formatter = pkgs.nixpkgs-fmt;
@@ -22,11 +22,12 @@
           ];
         };
 
-        packages = {
+        packages = rec {
+          default = ecsls;
           ecsls =
             let
               pypkgs = pkgs.python311Packages;
-              vera = (import ./banana-vera-clang.nix { inherit pkgs system; });
+              vera = vera-clang.packages.${system}.vera;
             in
             pypkgs.buildPythonPackage {
               pname = "ecsls";
@@ -43,8 +44,6 @@
                 --set PATH ${pkgs.lib.makeBinPath ([ vera ])}
               '';
             };
-
-          default = self.packages.${system}.ecsls;
         };
       });
 }
