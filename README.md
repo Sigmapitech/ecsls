@@ -53,7 +53,15 @@ venv/bin/pip install .
 > for the command in your LSP config
 
 
-## Neovim Setup
+## Setup
+
+To activate ecsls as a language server, you'll need to create a custom LSP in
+your editor.
+
+Once it is done, you'll need to create a `ecsls.toml` to tell the LSP to run
+as it is quite heavy and can be annoying.
+
+### Neovim
 
 To activate the language server using
 [lspconfig](https://github.com/neovim/nvim-lspconfig), use the following
@@ -78,31 +86,30 @@ end
 lspconfig.ecsls.setup({})
 ```
 
+### Emacs
+
+```lisp
+(require 'lsp-mode)
+(lsp-register-client
+  (make-lsp-client :new-connection (lsp-stdio-connection '("ecsls_run"))
+                   :major-modes '(c-mode c++-mode makefile-mode)
+                   :server-id 'ecsls))
+
+(add-hook 'c-mode-hook 'lsp)
+(add-hook 'c++-mode-hook 'lsp)
+(add-hook 'makefile-mode-hook 'lsp)
+```
+
+### Change the ruleset path
+
 > **Note**
 > If you want to use it globally, or if you wish to change the vera rules
 > directory, change `path` in by using `init_options`.
 
-
 ```lua
-local lspconfig = require('lspconfig')
-local configs = require('lspconfig.configs')
-
--- ↓ Epitech C Style Checker
-if not configs.ecsls then
-  configs.ecsls = {
-    default_config = {
-      root_dir = lspconfig.util.root_pattern('.git', 'Makefile'),
-      cmd = { 'ecsls_run' },
-      autostart = true,
-      name = 'ecsls',
-      filetypes = { 'c', 'cpp', 'make' },
-      init_options = {
-        path = "/your/custom/path";
-      };
-    },
-  }
-end
-lspconfig.ecsls.setup({})
+init_options = {
+  path = '/your/custom/path',
+},
 ```
 
 > **Warning**
@@ -114,10 +121,5 @@ path = ".../ls/banana-coding-style-checker/vera"  # invalid too
 path = ".../ls/banana-coding-style-checker"  # valid
 ```
 
-> **Note**
-> If you are using nix with home manager, the ruleset with already be bundled
-> as long as you have a SSH key linked to your github account.
-
 To see a configuration in more details, consider reading
 [my dotfiles](https://github.com/Sigmanificient/dotfiles/blob/master/home/nvim/default.nix).
-
