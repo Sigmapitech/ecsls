@@ -19,6 +19,7 @@ class Config:
 
     def __init__(self):
         self.__conf = {}
+        self._has_invalid_ruleset = False
 
         user_home = os.environ.get("$HOME", "~")
         user_conf = os.environ.get("$XDG_CONFIG_HOME", f"{user_home}/.config")
@@ -29,9 +30,12 @@ class Config:
             return
 
         self.path = opts.get("path", self.path)
-        ls.show_message(f"=> PATH = [{self.path}]")
         if not os.path.exists(self.path):
-            raise ValueError
+            self._has_invalid_ruleset = True
+            ls.show_message(
+                f"cannot find coding style ruleset in {self.path}."
+                " ESCSLS will not run"
+            )
 
     def _read_conf(self, confpath) -> bool:
         default_conf = {
@@ -54,6 +58,9 @@ class Config:
         return True
 
     def read(self, ls: LanguageServer, filepath) -> bool:
+        if self._has_invalid_ruleset:
+            return False
+
         path = Path(filepath.split(':')[-1])
         count_slash = str(path.absolute).count('/')
 
