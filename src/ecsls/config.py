@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
+import logging
 
 import tomli
 from lsprotocol.types import LSPAny
@@ -9,6 +11,7 @@ from pygls.server import LanguageServer
 
 class Config:
     _instance = None
+    _log_level = logging.INFO
 
     @classmethod
     def instance(cls) -> Config:
@@ -24,6 +27,20 @@ class Config:
         user_home = os.environ.get("$HOME", "~")
         user_conf = os.environ.get("$XDG_CONFIG_HOME", f"{user_home}/.config")
         self.path = os.path.expanduser(f"{user_conf}/ecsls")
+        if "--LOG_LEVEL" in sys.argv:
+            match sys.argv[sys.argv.index("--LOG_LEVEL") + 1]:
+                case "DEBUG":
+                    self._log_level = logging.DEBUG
+                case "INFO":
+                    self._log_level = logging.INFO
+                case "WARNING":
+                    self._log_level = logging.WARNING
+                case "ERROR":
+                    self._log_level = logging.ERROR
+                case "CRITICAL":
+                    self._log_level = logging.CRITICAL
+                case _:
+                    pass
 
     def set_opts(self, opts: LSPAny, ls: LanguageServer):
         if opts is None:
