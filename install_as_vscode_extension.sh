@@ -28,8 +28,8 @@ git clone "git@github.com/Sigmapitech/ecsls.git" "$CLONE_DIR" ||            \
     git clone "https://github.com/Sigmapitech/ecsls.git" "$CLONE_DIR" ||    \
     { echo "Clone failed"; exit 1; }
 cd "$CLONE_DIR" || { echo "Failed to change directory"; exit 1; }
-python -m venv venv && venv/bin/pip install -e .
-ln -sf venv/bin/ecsls_run /usr/bin/ecsls_run
+python -m venv venv && venv/bin/pip install -e . || { echo "Failed to install ecsls"; exit 1; }
+sudo ln -sf $PWD/venv/bin/ecsls_run /usr/local/bin/ecsls_run || { echo "Failed to create symlink"; exit 1; }
 
 # Clone the repository
 CLONE_DIR="epitech-cs"
@@ -49,6 +49,7 @@ VSIX_FILE=$(npx vsce package | grep -oP 'Packaged: \K.*\.vsix')
 if [ -n "$VSIX_FILE" ]; then
   echo "VSIX file found: $VSIX_FILE"
   echo "Installing the extension..."
+
   code --install-extension "$VSIX_FILE" || { echo "Installation failed"; exit 1; }
 else
   echo "Error: No .vsix file found in the output."
