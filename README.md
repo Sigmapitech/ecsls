@@ -100,6 +100,14 @@ lspconfig.ecsls.setup({})
 (add-hook 'makefile-mode-hook 'lsp)
 ```
 
+### VSCode
+
+(not using lspconfig)
+
+```sh
+./install_as_vscode_extension.sh
+```
+
 ### Change the ruleset path
 
 > **Note**
