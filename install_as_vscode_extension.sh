@@ -35,9 +35,9 @@ ln -sf venv/bin/ecsls_run /usr/bin/ecsls_run
 CLONE_DIR="epitech-cs"
 
 echo "Cloning repository..."
-git clone "git@github.com/Ciznia/epitech-cs.git" "$CLONE_DIR" ||            \
-    git clone "https://github.com/Ciznia/epitech-cs.git" "$CLONE_DIR" ||    \
-    { echo "Clone failed"; exit 1; }
+git clone "git@github.com/Ciznia/epitech-cs.git" "$CLONE_DIR"            \
+    || git clone "https://github.com/Ciznia/epitech-cs.git" "$CLONE_DIR" \
+    || { echo "Clone failed"; exit 1; }
 cd "$CLONE_DIR" || { echo "Failed to change directory"; exit 1; }
 
 # Package the extension
