@@ -100,6 +100,51 @@ lspconfig.ecsls.setup({})
 (add-hook 'makefile-mode-hook 'lsp)
 ```
 
+### VSCode
+
+(not using lspconfig)
+
+```sh
+# Clone ecsls
+REPO_URL="git@github.com/Sigmapitech/ecsls.git"
+CLONE_DIR="ecsls"
+
+echo "Cloning repository..."
+git clone "$REPO_URL" "$CLONE_DIR" || { echo "Clone failed"; exit 1; }
+cd "$CLONE_DIR" || { echo "Failed to change directory"; exit 1; }
+python -m venv venv && venv/bin/pip install -e .
+ln -sf venv/bin/ecsls_run /usr/bin/ecsls_run
+
+# Clone the repository
+REPO_URL="git@github.com/Ciznia/epitech-cs.git"
+CLONE_DIR="epitech-cs"
+
+echo "Cloning repository..."
+git clone "$REPO_URL" "$CLONE_DIR" || { echo "Clone failed"; exit 1; }
+cd "$CLONE_DIR" || { echo "Failed to change directory"; exit 1; }
+
+# Package the extension
+echo "Packaging the extension..."
+VSIX_FILE=$(npx vsce package | grep -oP 'Packaged: \K.*\.vsix')
+
+# Check if packaging succeeded and install the extension
+if [ -n "$VSIX_FILE" ]; then
+  echo "VSIX file found: $VSIX_FILE"
+  echo "Installing the extension..."
+  code --install-extension "$VSIX_FILE" || { echo "Installation failed"; exit 1; }
+else
+  echo "Error: No .vsix file found in the output."
+  exit 1
+fi
+
+# Return to the original directory and clean up
+cd ..
+echo "Cleaning up..."
+rm -rf "$CLONE_DIR"
+
+echo "Done!"
+```
+
 ### Change the ruleset path
 
 > **Note**
