@@ -4,12 +4,13 @@
 DEPENDENCIES=("npx" "npm" "code")
 
 die() {
-    echo $1; exit 1;
+    echo "$1"
+    exit 1
 }
 
 clone_helper() {
-    git clone "git@github.com:$1.git" "$2"
-        || git clone "https://github.com/$1.git" "$2"
+    git clone "git@github.com:$1.git" "$2" \
+        || git clone "https://github.com/$1.git" "$2" \
         || die "Clone failed"
 }
 
@@ -33,14 +34,6 @@ install_dependancies() {
     # Source the os-release file
     . /etc/os-release
 
-    # Determine the package manager based on the Linux distribution
-    install_packages() {
-        local package_manager=$1
-        local packages=$2
-        echo "Installing packages: $packages"
-        sudo $package_manager update -y && $package_manager install -y $packages
-    }
-
     # Set package names based on the Linux distribution
     case "$ID" in
         ubuntu|debian)
@@ -48,21 +41,21 @@ install_dependancies() {
             packages="cmake tcl-dev libboost-dev python3 python-is-python3"
             echo "Updating package lists and installing packages: $packages"
             sudo apt-get update -y
-            sudo apt-get install -y $packages
+            sudo apt-get install -y "$packages"
             ;;
         fedora|rhel|centos|rocky|almalinux)
             echo "Detected: Red Hat-based distribution"
             packages="tcl cmake boost-devel python3"
             echo "Updating package lists and installing packages: $packages"
             sudo dnf update -y
-            sudo dnf install -y $packages
+            sudo dnf install -y "$packages"
             ;;
         arch|manjaro)
             echo "Detected: Arch-based distribution"
             packages="cmake tcl boost python3"
             echo "Updating package lists and installing packages: $packages"
             sudo pacman -Syu --noconfirm
-            sudo pacman -S --noconfirm $packages
+            sudo pacman -S --noconfirm "$packages"
             ;;
         *)
             die "Error: Unsupported Linux distribution ($ID)"
@@ -75,7 +68,7 @@ install_dependancies() {
 
 install_vera()  {
     clone_helper "Epitech/banana-vera"  ".vera"
-    cd .vera
+    cd .vera || die "cd failed"
 
     install_dependancies
     cmake . -DVERA_LUA=OFF -DPANDOC=OFF -DVERA_USE_SYSTEM_BOOST=ON
@@ -88,7 +81,7 @@ install_vera()  {
 
 install_rules()
 {
-    clone "Epitech/banana-coding-style-checker" "~/.config/ecsls"
+    clone "Epitech/banana-coding-style-checker" "$HOME/.config/ecsls"
 }
 
 install_ecsls() {
@@ -97,8 +90,8 @@ install_ecsls() {
     echo "Cloning repository..."
     clone_helper "Sigmapitech/ecsls" $CLONE_DIR
     cd "$CLONE_DIR" || die "Failed to change directory"
-    python -m venv venv && venv/bin/pip install -e . || die "Failed to install ecsls"
-    sudo ln -sf $PWD/venv/bin/ecsls_run /usr/local/bin/ecsls_run || die "Failed to create symlink"
+    (python -m venv venv && venv/bin/pip install -e .) || die "Failed to install ecsls"
+    sudo ln -sf "$PWD"/venv/bin/ecsls_run /usr/local/bin/ecsls_run || die "Failed to create symlink"
 }
 
 install_extension() {
