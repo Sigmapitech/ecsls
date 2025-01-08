@@ -104,14 +104,14 @@ lspconfig.ecsls.setup({})
 
 (not using lspconfig)
 
-[!Caution]
-Do not use the script on nixos, just import it in your home config
+> [!CAUTION]
+> Do not use the script on nixos, just import it in your home config
 
-[!WARNING]
-You need sudo perm for the script to work
+> [!WARNING]
+> You need sudo perm for the script to work
 
-[!WARNING]
-You need to have access to repo owned by Epitech
+> [!WARNING]
+> You need to have access to repo owned by Epitech
 
 ```sh
 ./install_as_vscode_extension.sh
