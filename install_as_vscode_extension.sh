@@ -3,13 +3,22 @@
 # Define the dependencies required for the script
 DEPENDENCIES=("npx" "npm" "code")
 
+die() {
+    echo $1; exit 1;
+}
+
+clone_helper() {
+    git clone "git@github.com:$1.git" "$2"
+        || git clone "https://github.com/$1.git" "$2"
+        || die "Clone failed"
+}
+
 # Function to check for dependencies
 check_dependencies() {
 echo "Checking dependencies..."
     for cmd in "${DEPENDENCIES[@]}"; do
         if ! command -v "$cmd" &>/dev/null; then
-            echo "Error: '$cmd' is not installed or not in PATH."
-            exit 1
+            die "Error: '$cmd' is not installed or not in PATH."
         fi
     done
     echo "All dependencies are installed."
@@ -18,8 +27,7 @@ echo "Checking dependencies..."
 install_dependancies() {
     # Check if /etc/os-release exists
     if [ ! -f /etc/os-release ]; then
-        echo "Error: /etc/os-release file not found."
-        exit 1
+        die "Error: /etc/os-release file not found."
     fi
 
     # Source the os-release file
@@ -57,8 +65,7 @@ install_dependancies() {
             sudo pacman -S --noconfirm $packages
             ;;
         *)
-            echo "Error: Unsupported Linux distribution ($ID)"
-            exit 1
+            die "Error: Unsupported Linux distribution ($ID)"
             ;;
     esac
 
@@ -67,7 +74,7 @@ install_dependancies() {
 }
 
 install_vera()  {
-    git clone git@github.com:Epitech/banana-vera.git .vera
+    clone_helper "Epitech/banana-vera"  ".vera"
     cd .vera
 
     install_dependancies
@@ -81,19 +88,17 @@ install_vera()  {
 
 install_rules()
 {
-    git clone git@github.com:Epitech/banana-coding-style-checker.git ~/.config/ecsls
+    clone "Epitech/banana-coding-style-checker" "~/.config/ecsls"
 }
 
 install_ecsls() {
     CLONE_DIR=".ecsls"
 
     echo "Cloning repository..."
-    git clone "git@github.com:Sigmapitech/ecsls.git" "$CLONE_DIR" ||            \
-        git clone "https://github.com/Sigmapitech/ecsls.git" "$CLONE_DIR" ||    \
-        { echo "Clone failed"; exit 1; }
-    cd "$CLONE_DIR" || { echo "Failed to change directory"; exit 1; }
-    python -m venv venv && venv/bin/pip install -e . || { echo "Failed to install ecsls"; exit 1; }
-    sudo ln -sf $PWD/venv/bin/ecsls_run /usr/local/bin/ecsls_run || { echo "Failed to create symlink"; exit 1; }
+    clone_helper "Sigmapitech/ecsls" $CLONE_DIR
+    cd "$CLONE_DIR" || die "Failed to change directory"
+    python -m venv venv && venv/bin/pip install -e . || die "Failed to install ecsls"
+    sudo ln -sf $PWD/venv/bin/ecsls_run /usr/local/bin/ecsls_run || die "Failed to create symlink"
 }
 
 install_extension() {
@@ -101,10 +106,8 @@ install_extension() {
     CLONE_DIR="epitech-cs"
 
     echo "Cloning repository..."
-    git clone "git@github.com:Ciznia/epitech-cs.git" "$CLONE_DIR"            \
-        || git clone "https://github.com/Ciznia/epitech-cs.git" "$CLONE_DIR" \
-        || { echo "Clone failed"; exit 1; }
-    cd "$CLONE_DIR" || { echo "Failed to change directory"; exit 1; }
+    clone_helper "Ciznia/epitech-cs" $CLONE_DIR
+    cd "$CLONE_DIR" || die "Failed to change directory"
 
     # Package the extension
     echo "Packaging the extension..."
@@ -113,13 +116,12 @@ install_extension() {
 
     # Check if packaging succeeded and install the extension
     if [ -n "$VSIX_FILE" ]; then
-    echo "VSIX file found: $VSIX_FILE"
-    echo "Installing the extension..."
+        echo "VSIX file found: $VSIX_FILE"
+        echo "Installing the extension..."
 
-    code --install-extension "$VSIX_FILE" || { echo "Installation failed"; exit 1; }
+        code --install-extension "$VSIX_FILE" || die "installation failed"
     else
-    echo "Error: No .vsix file found in the output."
-    exit 1
+        die "Error: No .vsix file found in the output."
     fi
 
     # Return to the original directory and clean up
@@ -132,6 +134,8 @@ install_extension() {
 check_dependencies
 if ! command -v "vera++" &>/dev/null; then
     install_vera
+fi
+if [ -d ~/.config/ecsls ]; then
     install_rules
 fi
 if ! command -v "ecsls_run" &>/dev/null; then
