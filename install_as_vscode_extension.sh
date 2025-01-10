@@ -153,7 +153,7 @@ if ! command -v "ecsls_run" &>/dev/null; then
     install_ecsls
 fi
 if ! command -v "lambdananas" &>/dev/null; then
-    install_lambdadana
+    install_lambdadanas
 fi
 if ! command -v "ehcsls_run" &>/dev/null; then
     install_ehcsls
