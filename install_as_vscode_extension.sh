@@ -105,7 +105,7 @@ install_ecsls() {
     install_lsp "ecsls"
 }
 
-install_lambdadana() {
+install_lambdananas() {
     curl -L https://github.com/Epitech/lambdananas/releases/download/v2.4.3.2/lambdananas > lambdananas
     chmod +x lambdananas
     sudo mv ./lambdananas /usr/local/bin/
