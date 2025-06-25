@@ -115,6 +115,10 @@ def get_vera_output(ls: LanguageServer, filename: str) -> List[Report]:
 
     if not filename:
         return []
+
+    if conf.get("disabled", bool, False):
+        return []
+
     out = subprocess.run(
         (
             "vera++",
