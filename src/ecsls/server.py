@@ -1,5 +1,8 @@
+import random
+import string
 import tempfile
-from typing import Dict, List
+
+from typing import List
 
 from .config import Config
 from .version import __version__
@@ -70,13 +73,18 @@ def merge_reports(reports: List[Report]) -> List[Report]:
 
 def get_diagnostics(ls: LanguageServer, text_doc: Document):
     content = text_doc.source
-    filename = ".mk" if text_doc.filename == "Makefile" else text_doc.filename
+    suffix = ".mk" if text_doc.filename == "Makefile" else text_doc.filename
 
     conf = Config.instance()
     if not conf.read(ls, text_doc.uri):
         return []
 
-    with tempfile.NamedTemporaryFile(suffix=filename) as tf:
+    name = (
+        (text_doc.filename or "")
+        + ''.join(random.choices(string.ascii_lowercase, k=8))
+    )
+
+    with tempfile.NamedTemporaryFile(prefix=name, suffix=suffix) as tf:
         tf.write(content.encode())
         tf.flush()
 
