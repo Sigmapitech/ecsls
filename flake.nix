@@ -3,31 +3,32 @@
 
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-unstable";
-    utils.url = "github:numtide/flake-utils";
     vera-clang.url = "github:Sigmapitech/vera-clang";
   };
 
-  outputs = { nixpkgs, utils, vera-clang, ... }:
-    utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = nixpkgs.legacyPackages.${system};
-      in
-      {
-        formatter = pkgs.nixpkgs-fmt;
-        devShells.default = pkgs.mkShell {
-          packages = with pkgs; [
-            python3
-            banana-vera
-            black
-          ];
-        };
+  outputs = { self, nixpkgs, vera-clang, ... }: let
+    forAllSystems = function:
+      nixpkgs.lib.genAttrs [
+        "x86_64-linux"
+      ] (system: function nixpkgs.legacyPackages.${system});
 
-        packages = rec {
-          default = ecsls;
-          ecsls =
-            let
-              vera = vera-clang.packages.${system}.vera;
-            in pkgs.python3Packages.callPackage ./ecsls.nix { inherit vera; };
-        };
-      });
+  in {
+    devShells.default = forAllSystems (pkgs: pkgs.mkShell {
+      packages = with pkgs; [
+        python3
+        banana-vera
+        black
+      ];
+    });
+
+    packages = forAllSystems (pkgs: {
+      default = self.packages.${pkgs.system}.ecsls;
+
+      vera = vera-clang.packages.${pkgs.system}.vera;
+
+      ecsls = pkgs.python3Packages.callPackage ./ecsls.nix {
+        inherit (self.packages.${pkgs.system}) vera;
+      };
+    });
+  };
 }
